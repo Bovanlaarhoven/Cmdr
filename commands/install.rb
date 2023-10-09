@@ -1,16 +1,21 @@
+require './library/colors.rb'
 require 'open3'
 require 'json'
 require 'nokogiri'
 require 'net/http'
 
-COLOR_GREEN = "\e[32m"
-COLOR_YELLOW = "\e[33m"
-COLOR_RED = "\e[31m"
-COLOR_END = "\e[0m"
-
-def install_package(package_name)
-  if try_pip(package_name) || try_wget(package_name) || try_curl(package_name) || try_github(package_name)
-    puts "#{COLOR_GREEN}Package #{package_name} successfully downloaded#{COLOR_END}"
+def install_package(package_name, method)
+  case method
+  when 'pip'
+    try_pip(package_name)
+  when 'wget'
+    try_wget(package_name)
+  when 'curl'
+    try_curl(package_name)
+  when 'github'
+    try_github(package_name)
+  else
+    puts "#{COLOR_RED}Invalid installation method: #{method}#{COLOR_END}"
   end
 end
 
@@ -18,10 +23,8 @@ def try_pip(package_name)
   begin
     Open3.capture2e("pip3 install #{package_name}")
     puts "#{COLOR_GREEN}Successfully installed #{package_name} using pip3#{COLOR_END}"
-    return true
   rescue
     puts "#{COLOR_RED}pip3 installation of #{package_name} failed, attempting other methods...#{COLOR_END}"
-    return false
   end
 end
 
@@ -29,10 +32,9 @@ def try_wget(package_name)
   puts "Trying to download using wget: #{COLOR_YELLOW}#{package_name}#{COLOR_END}"
   begin
     Open3.capture2e("wget #{package_name}")
-    return true
+    puts "#{COLOR_GREEN}Successfully downloaded #{package_name} using wget#{COLOR_END}"
   rescue
     puts "#{COLOR_RED}wget download of #{package_name} failed#{COLOR_END}"
-    return false
   end
 end
 
@@ -40,10 +42,9 @@ def try_curl(package_name)
   puts "Trying to download using curl: #{COLOR_YELLOW}#{package_name}#{COLOR_END}"
   begin
     Open3.capture2e("curl -O #{package_name}")
-    return true
+    puts "#{COLOR_GREEN}Successfully downloaded #{package_name} using curl#{COLOR_END}"
   rescue
     puts "#{COLOR_RED}curl download of #{package_name} failed#{COLOR_END}"
-    return false
   end
 end
 
@@ -67,9 +68,12 @@ end
 
 def main
   args = ARGV
-  if args.length >= 1
+  if args.length >= 2
     package_name = args[0]
-    install_package(package_name)
+    method = args[1]
+    install_package(package_name, method)
+  else
+    puts "#{COLOR_RED}Usage: install <package_name> <method>#{COLOR_END}"
   end
 end
 
