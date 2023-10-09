@@ -1,30 +1,39 @@
 #!/bin/bash
 
-# Define the URL of the Ruby script
 RUBY_SCRIPT_URL="https://raw.githubusercontent.com/Robobo2022/Cmdr/main/setup/create.rb"
 
-# Define the temporary script file
 TMP_SCRIPT_FILE="/tmp/create.rb"
 
-# Define the folder name
 FOLDER_NAME="CMDR"
 
-# Define the folder path
 FOLDER_PATH="$HOME/$FOLDER_NAME"
 
-# Download the Ruby script from the URL
 wget "$RUBY_SCRIPT_URL" -O "$TMP_SCRIPT_FILE"
 
 if [ $? -eq 0 ]; then
   ruby "$TMP_SCRIPT_FILE"
   
   rm -f "$TMP_SCRIPT_FILE"
-    git clone https://github.com/Robobo2022/Cmdr.git "$FOLDER_PATH"
+  
+  git clone https://github.com/Robobo2022/Cmdr.git "$FOLDER_PATH"
+  
+  if [ $? -eq 0 ]; then
+    echo "Repository cloned into $FOLDER_PATH."
     
-    if [ $? -eq 0 ]; then
-      echo "Repository cloned into $FOLDER_PATH."
-    else
-      echo "Failed to clone the repository."
-      exit 1
-    fi
+    mv "$FOLDER_PATH/Core/main.rb" "$FOLDER_PATH/CMDR"
+    
+    echo "Renamed 'main.rb' to 'CMDR' in $FOLDER_PATH."
+    
+    echo 'export PATH="$FOLDER_PATH:$PATH"' >> ~/.bashrc 
+    source ~/.bashrc 
+    echo "Added $FOLDER_PATH to PATH."
+    
+    echo "You can now use 'CMDR' in the terminal."
+  else
+    echo "Failed to clone the repository."
+    exit 1
   fi
+else
+  echo "Failed to download the Ruby script."
+  exit 1
+fi
