@@ -1,6 +1,7 @@
 require './Core/cmdlist'
 require './commands/install'
 require './library/colors.rb'
+require './commands/uninstall'
 
 def main
   args = ARGV
@@ -14,7 +15,8 @@ def main
     install_package(package_name, method)
   elsif args.length >= 1 && args[0].downcase.start_with?('uninstall')
     package_name = args[1]
-    uninstall_package(package_name)
+    method = args[2]
+    uninstall_package(package_name, method)
   else
     puts "#{COLOR_RED}Invalid command: #{args[0]}#{COLOR_END}"
   end
